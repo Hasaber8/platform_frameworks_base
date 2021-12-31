@@ -32,6 +32,7 @@ public final class AttestationHooks {
 
     private static final String PACKAGE_GMS = "com.google.android.gms";
     private static final String PACKAGE_FINSKY = "com.android.vending";
+    private static final String PACKAGE_PHOTOS = "com.google.android.apps.photos";
     private static final String PROCESS_UNSTABLE = "com.google.android.gms.unstable";
 
     private static volatile boolean sIsGms = false;
@@ -74,6 +75,15 @@ public final class AttestationHooks {
         //setVersionField("DEVICE_INITIAL_SDK_INT", Build.VERSION_CODES.N);
     }
 
+    private static void spoofGooglePhotos() {
+        setBuildField("PRODUCT", "marlin");
+        setBuildField("DEVICE", "marlin");
+        setBuildField("MANUFACTURER", "Google");
+        setBuildField("BRAND", "google");
+        setBuildField("MODEL", "Pixel XL");
+        setBuildField("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
+    }
+
     public static void initApplicationBeforeOnCreate(Application app) {
         if (PACKAGE_GMS.equals(app.getPackageName()) &&
                 PROCESS_UNSTABLE.equals(Application.getProcessName())) {
@@ -83,6 +93,10 @@ public final class AttestationHooks {
 
         if (PACKAGE_FINSKY.equals(app.getPackageName())) {
             sIsFinsky = true;
+        }
+
+        if (PACKAGE_PHOTOS.equals(app.getPackageName())) {
+            spoofGooglePhotos();
         }
     }
 
