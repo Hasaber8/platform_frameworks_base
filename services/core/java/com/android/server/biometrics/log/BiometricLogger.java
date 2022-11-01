@@ -206,7 +206,8 @@ public class BiometricLogger {
             return;
         }
 
-        mAuthenticationStatsCollector.authenticate(targetUserId, authenticated);
+        if (mAuthenticationStatsCollector != null)
+            mAuthenticationStatsCollector.authenticate(targetUserId, authenticated);
 
         int authState = FrameworkStatsLog.BIOMETRIC_AUTHENTICATED__STATE__UNKNOWN;
         if (!authenticated) {
