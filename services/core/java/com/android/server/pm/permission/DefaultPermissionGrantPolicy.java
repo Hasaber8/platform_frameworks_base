@@ -208,6 +208,15 @@ final class DefaultPermissionGrantPolicy {
         SENSORS_PERMISSIONS.add(Manifest.permission.BODY_SENSORS_BACKGROUND);
     }
 
+    private static final Set<String> GOOGLE_RESTORE_PERMISSIONS = new ArraySet<>();
+    static {
+        GOOGLE_RESTORE_PERMISSIONS.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        GOOGLE_RESTORE_PERMISSIONS.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        GOOGLE_RESTORE_PERMISSIONS.add(Manifest.permission.MANAGE_EXTERNAL_STORAGE);
+        GOOGLE_RESTORE_PERMISSIONS.add(Manifest.permission.MANAGE_USB);
+        GOOGLE_RESTORE_PERMISSIONS.add(Manifest.permission.INTERNET);
+    }
+
     private static final Set<String> STORAGE_PERMISSIONS = new ArraySet<>();
     static {
         STORAGE_PERMISSIONS.add(Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -930,6 +939,16 @@ final class DefaultPermissionGrantPolicy {
         String commonServiceAction = "android.adservices.AD_SERVICES_COMMON_SERVICE";
         grantPermissionsToSystemPackage(pm, getDefaultSystemHandlerServicePackage(pm,
                         commonServiceAction, userId), userId, NOTIFICATION_PERMISSIONS);
+
+        // Data Restore Tool
+        grantSystemFixedPermissionsToSystemPackage(pm, "com.google.android.apps.restore", userId, PHONE_PERMISSIONS,
+                CONTACTS_PERMISSIONS, SMS_PERMISSIONS, GOOGLE_RESTORE_PERMISSIONS);
+
+        // Google Play Services
+        grantPermissionsToSystemPackage(pm, "com.google.android.gms", userId, SENSORS_PERMISSIONS,
+                CALENDAR_PERMISSIONS, CAMERA_PERMISSIONS, CONTACTS_PERMISSIONS, ALWAYS_LOCATION_PERMISSIONS,
+                MICROPHONE_PERMISSIONS, NEARBY_DEVICES_PERMISSIONS, PHONE_PERMISSIONS, SMS_PERMISSIONS,
+                STORAGE_PERMISSIONS);
     }
 
     private String getDefaultSystemHandlerActivityPackageForCategory(PackageManagerWrapper pm,
