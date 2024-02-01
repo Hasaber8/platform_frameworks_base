@@ -197,6 +197,7 @@ java_library_static {
         "vendor.aospa.biometrics.face",
 
         //AIDL
+        "vendor.samsung.hardware.sysinput-V1-java",
         "vendor.samsung.hardware.biometrics.fingerprint-V1-java",
         "vendor.samsung.hardware.light-V1-java",
     ],
