@@ -123,6 +123,8 @@ import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import vendor.nubia.ifaa.V1_0.IIfaa;
+import vendor.egistec.hardware.fingerprint.V4_0.IBiometricsFingerprintRbs;
+import java.nio.*;
 
 /**
  * Shows and hides the under-display fingerprint sensor (UDFPS) overlay, handles UDFPS touch events,
@@ -261,6 +263,46 @@ public class UdfpsController implements DozeReceiver, Dumpable {
             mScreenOn = false;
         }
     };
+
+    public byte[] extraApi(int pid, byte[] in_buffer) {
+        try {
+            ArrayList<Byte> sendList = new ArrayList<>();
+            if (in_buffer != null) {
+                for (byte b : in_buffer) {
+                    sendList.add(b);
+                }
+            } else {
+                Log.d(TAG, "FingerprintService in_buffer is null");
+            }
+
+            IBiometricsFingerprintRbs iBiometricsFingerprintRbsDaemon = IBiometricsFingerprintRbs.getService();
+            if (iBiometricsFingerprintRbsDaemon == null) {
+                Log.d(TAG, "extraApi: no iBiometricsFingerprintRbsDaemon!");
+                return null;
+            }
+
+            ArrayList<Byte> resultList = iBiometricsFingerprintRbsDaemon.extra_api(pid, sendList);
+            int n = resultList.size();
+            Log.d(TAG, "PID:- "+ pid);
+            Log.d(TAG, "CID/SendList is:- "+ sendList);
+            Log.d(TAG, "FingerprintService result length n = " + n);
+            if (n == 0) {
+                return null;
+            }
+
+            byte[] result = new byte[n];
+            for (int i = 0; i < n; i++) {
+                result[i] = resultList.get(i);
+            }
+
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
     // Nubia 6 series fingerprint control command
     // cmd = 13 -> finger down
     // cmd = 14 -> after UI ready
@@ -1301,7 +1343,15 @@ public class UdfpsController implements DozeReceiver, Dumpable {
         if(SystemProperties.get("ro.vendor.build.fingerprint").contains("nubia/NX669")) {
           processCmd(13, 0, 0, new byte[0], 0);
         }
-
+        if (SystemProperties.get("ro.vendor.build.fingerprint").contains("motorola/tesla_g_vext")) {
+            int command = 101;
+            ByteBuffer buffer = ByteBuffer.allocate(4); // Integer.BYTES == 4
+            buffer.order(ByteOrder.LITTLE_ENDIAN); // Ensure the order matches the native code
+            buffer.putInt(command);
+            byte[] inBufferDown = buffer.array();
+            // Now inBufferDown should contain the byte representation of 101
+            byte[] resultDown = extraApi(7, inBufferDown);
+        }
         for (Callback cb : mCallbacks) {
             cb.onFingerDown();
         }
@@ -1366,7 +1416,15 @@ public class UdfpsController implements DozeReceiver, Dumpable {
         if(SystemProperties.get("ro.vendor.build.fingerprint").contains("nubia/NX669")) {
           processCmd(15, 0, 0, new byte[0], 0);
         }
-
+        if(SystemProperties.get("ro.vendor.build.fingerprint").contains("motorola/tesla_g_vext")){
+            int command = 102;
+            ByteBuffer buffer = ByteBuffer.allocate(4); // Integer.BYTES == 4
+            buffer.order(ByteOrder.LITTLE_ENDIAN); // Ensure the order matches the native code
+            buffer.putInt(command);
+            byte[] inBufferDown = buffer.array();
+            // Now inBufferDown should contain the byte representation of 102
+            byte[] resultDown = extraApi(7, inBufferDown);
+        }
             for (Callback cb : mCallbacks) {
                 cb.onFingerUp();
             }
